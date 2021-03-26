@@ -58,7 +58,7 @@ Being an effective, supportive team member is a crucial part of data science wor
 - Reflect on the strengths and weaknesses of the team and the team's process. Where your collaboration has worked well, how will you work to ensure that these successful practices continue to be employed? If there are places where collaboration has been challenging, what can the team do jointly to improve? 
 - If there are any individual performances that deserve special recognition, please let me know in this evaluation. As well, if there are any individual performances that require special attention, please also let me know. I will treat these reviews as confidential and will not take any action without first consulting you.
 
-**This reflection is due in week 13, and requires one submission per person.** You will submit this through Gradescope, and like all parts of your educational record, this will be treated confidentially by the instructional team. 
+**This reflection is due in week 12, and requires one submission per person.** You will submit this through Gradescope, and like all parts of your educational record, this will be treated confidentially by the instructional team. 
 
 ## Final Presentation 
 
