@@ -1,0 +1,52 @@
+State,State_code,SAH,SAH_start,Religious_excempt,SAH_end,SAH_length,Notes
+California,CA,1,3/19/2020,0,6/27/2020,100,
+Kentucky,KY,0,0,0,0,0,KY - Order on 3/25/2020 did not have any language ordering individuals to stay at home; 3/26/2020 order did not order residents to stay at home; Order never applied to the entire state but it expired officially on 6/29/2020
+New York,NY,1,3/22/2020,1,6/27/2020,97,"NY - ""NY On Pause"" expired 6/27 but the state eased restrictions prior to the expiration (see reopenings for more details)"
+Oregon,OR,1,3/23/2020,0,6/19/2020,88,
+New Hampshire,NH,1,3/28/2020,0,6/16/2020,80,
+New Jersey,NJ,1,3/21/2020,0,6/9/2020,80,
+Pennsylvania,PA,1,4/1/2020,1,6/5/2020,65,PA - 5/8 lifted stay-at-home order for some counties; 5/22 lifted order for more counties
+Washington,WA,1,3/23/2020,0,6/1/2020,70,
+Delaware,DE,1,3/24/2020,1,6/1/2020,69,
+Michigan,MI,1,3/24/2020,1,6/1/2020,69,
+Hawaii,HI,1,3/25/2020,0,5/7/2020,43,HI - Stay-at-home order was in place through 5/31 but rules began relaxing for certain groups and businesses on 5/7
+Maine,ME,1,4/2/2020,0,5/31/2020,59,
+Illinois,IL,1,3/21/2020,0,5/29/2020,69,
+Virginia,VA,1,3/30/2020,0,5/29/2020,60,
+District of Columbia,DC,1,4/1/2020,0,5/29/2020,58,
+North Carolina,NC,1,3/30/2020,1,5/22/2020,53,
+Connecticut,CT,0,0,0,0,0,"CT - ""Stay Safe, Stay Home"" order does not have any language that orders individuals to stay at home; 3/23/2020 safer-at-home order acted only to close nonessential businesses"
+Ohio,OH,1,3/24/2020,1,5/20/2020,57,
+Massachusetts,MA,1,3/24/2020,0,5/18/2020,55,MA - Stay-at-home order replaced 5/18 with safer-at-home advisory
+Indiana,IN,1,3/25/2020,0,5/18/2020,54,IN - Expired for most counties 5/1; some reopening on 5/4; expired for all counties 5/18
+Minnesota,MN,1,3/28/2020,0,5/18/2020,51,
+Florida,FL,1,4/3/2020,1,5/18/2020,45,"FL - 5/4 ended stay-at-home order for most counties (remained in place only for Miami-Dade, Broward and Palm Beach counties); 5/18 ended order for entire state"
+Arizona,AZ,1,3/31/2020,1,5/16/2020,46,
+Oklahoma,OK,0,0,0,0,0,OK - Stay-at-home order from 4/1 only applied to those over 65; order was allowed to expire 5/15 per state's website
+Louisiana,LA,1,3/23/2020,0,5/15/2020,53,
+Vermont,VT,1,3/24/2020,0,5/15/2020,52,
+Maryland,MD,1,3/30/2020,0,5/15/2020,46,
+Wisconsin,WI,1,3/25/2020,0,5/13/2020,49,
+Rhode Island,RI,1,3/28/2020,0,5/9/2020,42,
+Nevada,NV,1,3/31/2020,0,5/9/2020,39,
+West Virginia,WV,1,3/24/2020,1,5/5/2020,42,
+Kansas,KS,1,3/30/2020,1,5/4/2020,35,
+Missouri,MO,1,4/6/2020,1,5/4/2020,28,
+South Carolina,SC,1,4/7/2020,1,5/4/2020,27,"SC - Safer-at-home order issued 3/30/2020 ""urged"" individuals to stay at home; Order was revised 4/7, changing ""urged"" to ""required"""
+Texas,TX,0,0,1,0,0,"TX - Stay-at-home order issued 4/2, though it does not explicitly order individuals to stay at home"
+Idaho,ID,1,3/25/2020,0,5/1/2020,37,
+Georgia,GA,0,0,0,0,0,GA - Only high-risk individuals were ordered to shelter in place
+Alabama,AL,1,4/4/2020,0,4/30/2020,26,AL - Initial stay-at-home order replaced by less restrictive order on 4/30
+Tennessee,TN,1,4/2/2020,1,4/29/2020,27,
+Colorado,CO,1,3/26/2020,1,4/27/2020,32,"CO - Initial stay-at-home order replaced 4/27 with safer-at-home order, which does not mandate that individuals must stay at home"
+Mississippi,MS,1,4/3/2020,0,4/27/2020,24,"MS - Replaced stay-at-home order on 4/27 with safer-at-home order, which encouraged but did not mandate that individuals stay at home"
+Montana,MT,1,3/28/2020,0,4/26/2020,29,
+Alaska,AK,1,3/28/2020,0,4/24/2020,27,
+Arkansas,AR,0,0,0,0,0,
+Iowa,IA,0,0,0,0,0,
+Nebraska,NE,0,0,0,0,0,
+North Dakota,ND,0,0,0,0,0,
+South Dakota,SD,0,0,0,0,0,
+Utah,UT,0,0,0,0,0,
+Wyoming,WY,0,0,0,0,0,
+New Mexico,NM,1,3/24/2020,1,5/15/2020,52,
