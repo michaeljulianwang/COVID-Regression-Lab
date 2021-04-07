@@ -1,9 +1,13 @@
 ---
-title: "Lab 2: Regression to Study the Spread of Covid-19"
+title: |
+  | \vspace{5cm} Lab 2: Impact of Stay at Home Orders on Individual Mobility
 author: 'w203: Statistics for Data Science'
-date: "10/28/2020"
-output: html_document
+date: "Elaine Chang, Dom Dillingham, Jesse Miller, Michael Wang"
+output:
+  pdf_document: default
 ---
+
+\newpage 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -63,26 +67,36 @@ stateLevel <- mobility %>% filter(sub_region_1 != '',
                                   sub_region_2 == '') %>%
                            mutate(Date = ymd(date))
 
-rm(mobility)
+## Subset to just the aggregate US level values for graphs
+usLevel <- mobility %>% filter(sub_region_1 == '', 
+                               sub_region_2 == '') %>% 
+                          mutate(Date = ymd(date))
 
-```
 
-### Model  1
-```{r}
-modDat <- stateLevel %>% 
+##  Create the modeling dataset
+modDat <- stateLevel %>%
   filter(Date >= '2020-04-01',
          Date <= '2020-08-01') %>%
   group_by(sub_region_1) %>%
   summarise(y_var = mean(retail_and_recreation_percent_change_from_baseline)) %>%
   left_join(stateInfo, by = c('sub_region_1' = 'STATE')) %>%
   mutate(stay = case_when(STAYHOME > 0 ~ '1',
-                          STAYHOMENOGP > 0 ~ '0.5', 
                           TRUE ~ '0'),
          length = case_when(STAYHOME > 0 ~ ymd(END_STHM) - ymd(STAYHOME),
-                            STAYHOMENOGP > 0 ~ ymd(END_STHM) - ymd(STAYHOMENOGP),
                             TRUE ~ 0))
+```
 
-mod1 <- lm(y_var ~ stay:length
+We will begin our analysis by first exploring the Google Mobility dataset. While there are many mobility measures within this dataset, we will focus on the change in mobility for retail and recreation. Unlike the other features that focus on grocery or parks, we beleive that retail and recreation captures the type of activity that stay at home policies intended to reduce. 
+
+```{r, echo=FALSE, message=FALSE}
+ggplot(usLevel, aes(x = Date, y = retail_and_recreation_percent_change_from_baseline)) +
+  geom_point() + stat_smooth() + ggtitle("U.S. Aggregate Mobility Impact") + 
+  labs(y = 'Retail and Recreation Mobility Change', x = 'Date')
+```
+
+### Model  1
+```{r, echo=FALSE, message=FALSE}
+mod1 <- lm(y_var ~ stay
           , data = modDat)
 coeftest(mod1, vcov = vcovHC(mod1))
 ```
