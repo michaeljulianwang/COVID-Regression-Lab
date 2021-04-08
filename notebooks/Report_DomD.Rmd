@@ -64,6 +64,8 @@ stateInfo <- read.xlsx('../data/raw/COVID-19 US state policy database 3_17_2021.
 
 ACS <- read.csv('../data/raw/ACSDP1Y2019.DP05-2021-04-04T224220.csv', stringsAsFactors = F)
 
+govParty <- read.csv('../data/raw/Govenor Party.csv', stringsAsFactors = F)
+
 ## Subset mobility data down to only state rows and convert the date to a date
 stateLevel <- mobility %>% filter(sub_region_1 != '', 
                                   sub_region_2 == '') %>%
@@ -99,6 +101,9 @@ ACS %<>% mutate(Population = as.numeric(gsub(',', '', as.character(X....Total.po
                 MedianAge = as.numeric(as.character(X........Median.age..years.))) %>%
   select(-X....Total.population, X........Median.age..years.)
 
+## Govenor party
+
+
 
 startDate <- '2020-03-19'
 endDate <- '2020-06-27'
@@ -121,7 +126,8 @@ modDat <- stateLevel %>%
                             STAYHOME > 0 & ymd(STAYHOME) < startDate & ymd(END_STHM) < endDate ~ ymd(END_STHM) - ymd(startDate),
                             STAYHOME > 0 & ymd(STAYHOME) < startDate & ymd(END_STHM) > endDate ~ ymd(endDate) - ymd(startDate),
                             TRUE ~ 0)) %>% 
-  left_join(ACS, by = c('sub_region_1' = 'State'))
+  left_join(ACS, by = c('sub_region_1' = 'State')) %>%
+  left_join(govParty, by = c('sub_region_1' = 'State'))
 ```
 
 We will begin our analysis by first exploring the Google Mobility dataset. While there are many mobility measures within this dataset, we will focus on the change in mobility for retail and recreation. Unlike the other features that focus on grocery or parks, we beleive that retail and recreation captures the type of activity that stay at home policies intended to reduce. 
@@ -165,7 +171,12 @@ ggplot(modDat, aes(x = MedianAge )) +
 ```
 
 ```{r, echo=FALSE, message=FALSE}
-mod2 <- lm(y_var ~ length + as.numeric(RISKCOV) + MedianAge
+ggplot(modDat, aes(x = length, fill = Party )) +
+  geom_histogram() + ggtitle("Length of Stay at Home by Party") 
+```
+
+```{r, echo=FALSE, message=FALSE}
+mod2 <- lm(y_var ~ length + as.numeric(RISKCOV) + Party
           , data = modDat)
 coeftest(mod2, vcov = vcovHC(mod2))
 ```
