@@ -1,9 +1,9 @@
 State,State_code,SAH,SAH_start,Religious_excempt,SAH_end,SAH_length,Notes
-California,CA,1,3/19/2020,0,6/27/2020,100,
+California,CA,1,3/19/2020,0,6/15/2020,88,
 Kentucky,KY,0,0,0,0,0,KY - Order on 3/25/2020 did not have any language ordering individuals to stay at home; 3/26/2020 order did not order residents to stay at home; Order never applied to the entire state but it expired officially on 6/29/2020
-New York,NY,1,3/22/2020,1,6/27/2020,97,"NY - ""NY On Pause"" expired 6/27 but the state eased restrictions prior to the expiration (see reopenings for more details)"
-Oregon,OR,1,3/23/2020,0,6/19/2020,88,
-New Hampshire,NH,1,3/28/2020,0,6/16/2020,80,
+New York,NY,1,3/22/2020,1,6/15/2020,85,"NY - ""NY On Pause"" expired 6/27 but the state eased restrictions prior to the expiration (see reopenings for more details)"
+Oregon,OR,1,3/23/2020,0,6/15/2020,84,
+New Hampshire,NH,1,3/28/2020,0,6/15/2020,79,
 New Jersey,NJ,1,3/21/2020,0,6/9/2020,80,
 Pennsylvania,PA,1,4/1/2020,1,6/5/2020,65,PA - 5/8 lifted stay-at-home order for some counties; 5/22 lifted order for more counties
 Washington,WA,1,3/23/2020,0,6/1/2020,70,
