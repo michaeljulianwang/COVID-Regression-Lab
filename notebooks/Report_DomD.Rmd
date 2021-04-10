@@ -94,19 +94,16 @@ names(ACS) <- make.names(as.matrix(ACS[1, ]))
 ACS <- ACS[-1, ] 
 
 #### Select down to the columns we want - can't do this by names because of duplicates
-ACS <- ACS[, c(1, 3, 20)]
+ACS <- ACS[, c(1, 3, 6, 20)]
 
 #### Clean up the two vars we want - need to play around because matrix converts to factors
 ACS %<>% mutate(Population = as.numeric(gsub(',', '', as.character(X....Total.population))), 
-                MedianAge = as.numeric(as.character(X........Median.age..years.))) %>%
-  select(-X....Total.population, X........Median.age..years.)
+                MedianAge = as.numeric(as.character(X........Median.age..years.)), 
+                SexRatio = as.numeric(as.character(X........Sex.ratio..males.per.100.females.))) %>%
+  select(-X....Total.population, -X........Median.age..years., -X........Sex.ratio..males.per.100.females.)
 
-## Govenor party
-
-
-
-startDate <- '2020-03-19'
-endDate <- '2020-06-27'
+startDate <- '2020-04-01'
+endDate <- '2020-06-15'
 
 # startDate <- '2020-04-01'
 # endDate <- '2020-08-01'
@@ -127,7 +124,13 @@ modDat <- stateLevel %>%
                             STAYHOME > 0 & ymd(STAYHOME) < startDate & ymd(END_STHM) > endDate ~ ymd(endDate) - ymd(startDate),
                             TRUE ~ 0)) %>% 
   left_join(ACS, by = c('sub_region_1' = 'State')) %>%
-  left_join(govParty, by = c('sub_region_1' = 'State'))
+  left_join(govParty, by = c('sub_region_1' = 'State')) %>%
+  left_join(
+    stateLevel %>% 
+      filter(Date <= '2020-03-01') %>%
+      group_by(sub_region_1) %>%
+      summarise(pre_COVID = mean(retail_and_recreation_percent_change_from_baseline))
+  )
 ```
 
 We will begin our analysis by first exploring the Google Mobility dataset. While there are many mobility measures within this dataset, we will focus on the change in mobility for retail and recreation. Unlike the other features that focus on grocery or parks, we beleive that retail and recreation captures the type of activity that stay at home policies intended to reduce. 
@@ -166,22 +169,33 @@ ggplot(modDat, aes(x = as.numeric(RISKCOV) )) +
 ```
 
 ```{r, echo=FALSE, message=FALSE}
-ggplot(modDat, aes(x = MedianAge )) +
-  geom_histogram() + ggtitle("Median Age Exploration") 
+ggplot(modDat, aes(x = as.numeric(UIMAXAMT) )) +
+  geom_histogram() + ggtitle("Max Unemployment Amount") 
 ```
 
+```{r, echo=FALSE, message=FALSE}
+ggplot(modDat, aes(x = pre_COVID )) +
+  geom_histogram() + ggtitle("Pre-COVID Movement") 
+```
+
+```{r, echo=FALSE, message=FALSE}
+mod2 <- lm(y_var ~ length + as.numeric(RISKCOV) + as.numeric(UIMAXAMT) + pre_COVID
+          , data = modDat)
+coeftest(mod2, vcov = vcovHC(mod2))
+```
+
+### Model 3
 ```{r, echo=FALSE, message=FALSE}
 ggplot(modDat, aes(x = length, fill = Party )) +
   geom_histogram() + ggtitle("Length of Stay at Home by Party") 
 ```
 
 ```{r, echo=FALSE, message=FALSE}
-mod2 <- lm(y_var ~ length + as.numeric(RISKCOV) + Party
+mod3 <- lm(y_var ~ length + as.numeric(RISKCOV) + as.numeric(UIMAXAMT) + pre_COVID + 
+             MedianAge + as.numeric(POPDEN18) + Party
           , data = modDat)
-coeftest(mod2, vcov = vcovHC(mod2))
+coeftest(mod3, vcov = vcovHC(mod3))
 ```
-
-### Model 3
 
 ### Regression Table and Interpretation
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
