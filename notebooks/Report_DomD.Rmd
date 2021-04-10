@@ -66,6 +66,9 @@ ACS <- read.csv('../data/raw/ACSDP1Y2019.DP05-2021-04-04T224220.csv', stringsAsF
 
 govParty <- read.csv('../data/raw/Govenor Party.csv', stringsAsFactors = F)
 
+## Bring in COVID data - this is CDC data, not NYT because it's already incremental and easier to work with
+COVIDData <- read.csv('../data/raw/United_States_COVID-19_Cases_and_Deaths_by_State_over_Time.csv', stringsAsFactors = F) 
+
 ## Subset mobility data down to only state rows and convert the date to a date
 stateLevel <- mobility %>% filter(sub_region_1 != '', 
                                   sub_region_2 == '') %>%
@@ -102,7 +105,7 @@ ACS %<>% mutate(Population = as.numeric(gsub(',', '', as.character(X....Total.po
                 SexRatio = as.numeric(as.character(X........Sex.ratio..males.per.100.females.))) %>%
   select(-X....Total.population, -X........Median.age..years., -X........Sex.ratio..males.per.100.females.)
 
-startDate <- '2020-04-01'
+startDate <- '2020-03-15'
 endDate <- '2020-06-15'
 
 # startDate <- '2020-04-01'
@@ -131,6 +134,30 @@ modDat <- stateLevel %>%
       group_by(sub_region_1) %>%
       summarise(pre_COVID = mean(retail_and_recreation_percent_change_from_baseline))
   )
+
+## Prep COVID data to show waves
+
+COVIDout <- COVIDData %>%
+  mutate(submission_date = mdy(submission_date)) %>%
+  filter(state %in% modDat$POSTCODE,
+         !is.na(submission_date)) %>%
+  group_by(submission_date) %>%
+  summarise(new_cases = sum(new_case))
+```
+
+```{r, echo=FALSE, message=FALSE}
+ggplot(COVIDout %>% filter(submission_date >= '2020-03-01'), aes(x = submission_date, y = new_cases)) +
+  geom_point() + stat_smooth() + ggtitle("Total COVID Case Spread") + 
+  labs(y = 'New COVID Cases', x = 'Date')
+```
+
+```{r, echo=FALSE, message=FALSE}
+ggplot(COVIDout %>% filter(submission_date >= '2020-03-01',
+                           submission_date < '2020-07-01'), aes(x = submission_date, y = new_cases)) +
+  geom_point() + stat_smooth() + ggtitle("First US COVID Wave") + 
+  labs(y = 'New COVID Cases', x = 'Date') + 
+  geom_vline(xintercept = as.numeric(ymd('2020-03-15'))) + 
+  geom_vline(xintercept = as.numeric(ymd('2020-06-15')))
 ```
 
 We will begin our analysis by first exploring the Google Mobility dataset. While there are many mobility measures within this dataset, we will focus on the change in mobility for retail and recreation. Unlike the other features that focus on grocery or parks, we beleive that retail and recreation captures the type of activity that stay at home policies intended to reduce. 
@@ -179,7 +206,7 @@ ggplot(modDat, aes(x = pre_COVID )) +
 ```
 
 ```{r, echo=FALSE, message=FALSE}
-mod2 <- lm(y_var ~ length + as.numeric(RISKCOV) + as.numeric(UIMAXAMT) + pre_COVID
+mod2 <- lm(y_var ~ length + as.numeric(UIMAXAMT) + pre_COVID
           , data = modDat)
 coeftest(mod2, vcov = vcovHC(mod2))
 ```
