@@ -112,9 +112,6 @@ ACS %<>% mutate(Population = as.numeric(gsub(',', '', as.character(X....Total.po
 startDate <- '2020-03-15'
 endDate <- '2020-06-15'
 
-# startDate <- '2020-04-01'
-# endDate <- '2020-08-01'
-
 ##  Create the modeling dataset
 modDat <- stateLevel %>%
   filter(Date >= startDate,
@@ -132,12 +129,6 @@ modDat <- stateLevel %>%
                             TRUE ~ 0)) %>% 
   left_join(ACS, by = c('sub_region_1' = 'State')) %>%
   left_join(govParty, by = c('sub_region_1' = 'State')) %>%
-  left_join(
-    stateLevel %>% 
-      filter(Date <= '2020-03-01') %>%
-      group_by(sub_region_1) %>%
-      summarise(pre_COVID = median(retail_and_recreation_percent_change_from_baseline))
-  ) %>%
   left_join(
     COVIDData %>%
       filter(!is.na(submission_date)) %>%
@@ -170,7 +161,8 @@ ggplot(COVIDout %>% filter(submission_date >= '2020-03-01',
   geom_point() + stat_smooth() + ggtitle("First US COVID Wave") + 
   labs(y = 'New COVID Cases', x = 'Date') + 
   geom_vline(xintercept = as.numeric(ymd('2020-03-15')), linetype='dotted') + 
-  geom_vline(xintercept = as.numeric(ymd('2020-06-15')), linetype='dotted') 
+  geom_vline(xintercept = as.numeric(ymd('2020-06-15')), linetype='dotted') +
+  ylim(0,50000)
 ```
 
 We will begin our analysis by first exploring the Google Mobility dataset. While there are many mobility measures within this dataset, we will focus on the change in mobility for retail and recreation. Unlike the other features that focus on grocery or parks, we beleive that retail and recreation captures the type of activity that stay at home policies intended to reduce. 
@@ -204,37 +196,45 @@ coeftest(mod1, vcov = vcovHC(mod1))
 ### Model 2
 
 ```{r, echo=FALSE, message=FALSE}
-ggplot(modDat, aes(x = as.numeric(RISKCOV) )) +
-  geom_histogram() + ggtitle("Risk COVID Exploration") 
+ggplot(modDat, aes(x = new_case_per_thousand )) +
+  geom_histogram() + ggtitle("Cases per Thousand") 
 ```
 
-```{r, echo=FALSE, message=FALSE}
-ggplot(modDat, aes(x = as.numeric(UIMAXAMT) )) +
-  geom_histogram() + ggtitle("Max Unemployment Amount") 
-```
-
-```{r, echo=FALSE, message=FALSE}
-ggplot(modDat, aes(x = pre_COVID )) +
-  geom_histogram() + ggtitle("Pre-COVID Movement") 
-```
-
-```{r, echo=FALSE, message=FALSE}
-mod2 <- lm(y_var ~ length + as.numeric(UIMAXAMT) + pre_COVID + Party + new_case_per_thousand
-          , data = modDat)
-coeftest(mod2, vcov = vcovHC(mod2))
-```
-
-### Model 3
 ```{r, echo=FALSE, message=FALSE}
 ggplot(modDat, aes(x = length, fill = Party )) +
   geom_histogram() + ggtitle("Length of Stay at Home by Party") 
 ```
 
 ```{r, echo=FALSE, message=FALSE}
-mod3 <- lm(y_var ~ length + as.numeric(RISKCOV) + as.numeric(UIMAXAMT) + pre_COVID + 
-             MedianAge + as.numeric(POPDEN18) + Party + new_case_per_thousand
+mod2 <- lm(y_var ~ length + Party + new_case_per_thousand
+          , data = modDat)
+coeftest(mod2, vcov = vcovHC(mod2))
+```
+
+```{r, echo=FALSE, message=FALSE}
+anova(mod2, mod1, test = "F")
+```
+
+### Model 3
+```{r, echo=FALSE, message=FALSE}
+ggplot(modDat, aes(x = as.numeric(RISKCOV) )) +
+  geom_histogram() + ggtitle("Pcnt At-Risk of COVID") 
+```
+
+```{r, echo=FALSE, message=FALSE}
+ggplot(modDat, aes(x = MedianAge )) +
+  geom_histogram() + ggtitle("Unemployment Maximum Amount") 
+```
+
+```{r, echo=FALSE, message=FALSE}
+mod3 <- lm(y_var ~ length + as.numeric(RISKCOV) +
+             MedianAge + Party + new_case_per_thousand
           , data = modDat)
 coeftest(mod3, vcov = vcovHC(mod3))
+```
+
+```{r, echo=FALSE, message=FALSE}
+anova(mod3, mod2, test = "F")
 ```
 
 ### Regression Table and Interpretation
