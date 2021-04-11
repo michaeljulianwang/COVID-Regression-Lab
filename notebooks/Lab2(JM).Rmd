@@ -1,0 +1,159 @@
+---
+title: "Lab 2 JM"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(sandwich)
+library(lmtest)
+library(gridExtra)
+```
+
+
+
+```{r}
+
+df <- read_csv('processed.csv')
+
+limited_model = lm(y_var~1+length,data=df)
+
+summary(limited_model)
+
+df %>%
+  select(length,y_var) %>%
+  ggplot(aes(x=length,y=y_var))+
+  geom_point()+stat_smooth(method='lm')+
+  labs(x='SAH Order Length',y='Median Reduction in R&R Mobility')
+
+df %>%
+  select(length,y_var) %>%
+  filter(length>0) %>%
+  ggplot(aes(x=length,y=y_var))+
+  geom_point()+stat_smooth()+
+  labs(x='SAH Order Length',y='Median Reduction in R&R Mobility')+
+  lims(x=c(0,90))
+
+coeftest(limited_model, vcov=vcovHC(limited_model))
+
+model_base <- lm(y_var~1,data=df)
+
+anova(limited_model,model_base,test='F')
+
+model2 <- lm(y_var~1+length+new_case_per_thousand+Party,data=df)
+
+summary(model2)
+
+anova(model2,limited_model,test='F')
+
+p1 <- df %>%
+  select(y_var,new_case_per_thousand) %>%
+  ggplot(aes(x=new_case_per_thousand,y=y_var))+
+  geom_point()+stat_smooth(method='lm')+
+  labs(x='Cases per Thousand Residents',y='Median Reduction in R&R Mobility')
+
+p2 <- df %>%
+  select(y_var,Party) %>%
+  ggplot(aes(x=Party,y=y_var))+
+  geom_point()+stat_smooth(method='lm')+
+  labs(x='Political Party of State Governor',y='Median Reduction in R&R Mobility')
+
+grid.arrange(p1,p2,nrow=1,ncol=2)
+
+p3 <- df %>%
+  select(length,new_case_per_thousand) %>%
+  ggplot(aes(x=new_case_per_thousand,y=length))+
+  geom_point()+stat_smooth(method='lm')+
+  labs(x='Cases per Thousand Residents',y='SAH Length')
+
+p4 <- df %>%
+  select(length,Party) %>%
+  ggplot(aes(x=Party,y=length))+
+  geom_point()+stat_smooth(method='lm')+
+  labs(x='Political Party of State Governor',y='SAH Length')
+
+grid.arrange(p3,p4,nrow=1,ncol=2)
+
+model2_1 <- lm(y_var~1+length+new_case_per_thousand,data=df)
+model2_2 <- lm(y_var~1+length+Party,data=df)
+
+summary(model2_1)
+summary(model2_2)
+
+
+model3 <- lm(y_var~1+length+new_case_per_thousand+Party+MedianAge+RISKCOV,data=df)
+
+summary(model3)
+
+p5 <- df %>%
+  select(y_var,MedianAge) %>%
+  ggplot(aes(x=MedianAge,y=y_var))+
+  geom_point()+stat_smooth(method='lm')+
+  labs(x='Median Age',y='Median Reduction in R&R Mobility')
+
+p6 <- df %>%
+  select(y_var,RISKCOV) %>%
+  ggplot(aes(x=RISKCOV,y=y_var))+
+  geom_point()+stat_smooth(method='lm')+
+  labs(x='Percent at Risk of Serious COVID Illness',y='Median Reduction in R&R Mobility')
+
+grid.arrange(p5,p6,nrow=1,ncol=2)
+
+anova(model3,model2,test='F')
+
+
+```
+
+```{r}
+
+mobility_unstacked <- read_csv('mobility_unstacked.csv')
+summary(mobility_unstacked)
+
+mobility <- read_csv('2020_Mobility_Report_FW.csv')
+
+med_mobility_by_state <- mobility %>%
+  group_by(State_code) %>%
+  summarise(med_rrmobility = median(RR_change))
+
+SAH <- read_csv('SAH_data.csv')
+
+gov_part <- read_csv('Gov_Party.csv')
+gov_part <- gov_part %>%
+  mutate(Rep = ifelse(Party=='R',1,0))
+
+state_chars <- read_csv('State_Chars.csv')
+
+add_chars <- read_csv('Additional_chars.csv')
+
+mmbs_plus <- left_join(med_mobility_by_state,SAH)
+mmbs_plus <- left_join(mmbs_plus,gov_part)
+mmbs_plus <- left_join(mmbs_plus,state_chars)
+mmbs_plus <- left_join(mmbs_plus,add_chars)
+
+mmbs_plusr <- mmbs_plus %>%
+  mutate(vpredictions = predict(limited_model), 
+         vresiduals = residuals(limited_model))
+
+mmbs_plusr %>%
+  ggplot(aes(x=vpredictions,y=vresiduals)) +
+  geom_point() + stat_smooth()
+
+modelerror <- lm(vresiduals^2 ~ 1, data=mmbs_plusr)
+modelerrorex <- lm(vresiduals^2 ~ 1 + SAH_length, data=mmbs_plusr)
+
+anova(modelerror,modelerrorex)
+
+lmtest::bptest(modelerrorex)
+
+
+mmbs_plusr %>%
+  select(vresiduals) %>%
+  ggplot(aes(x=vresiduals))+
+  geom_histogram(aes(y=..density..)) +
+  geom_density(color="red")
+
+qqnorm(mmbs_plusr$vresiduals)
+qqline(mmbs_plusr$vresiduals, col = "blue", lwd = 2)
+
+```
