@@ -140,6 +140,8 @@ modDat <- stateLevel %>%
   ) %>%
   mutate(new_case_per_thousand = new_case / Population * 1000)
 
+# write.csv(modDat, 'Dom_processed.csv')
+
 ## Prep COVID data to show waves
 COVIDout <- COVIDData %>%
   mutate(submission_date = mdy(submission_date)) %>%
