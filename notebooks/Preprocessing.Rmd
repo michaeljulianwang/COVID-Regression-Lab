@@ -1,0 +1,101 @@
+Pre-processing code to aggregate raw datasets into ./processed/processed.csv for use in downstream model-building.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+## Load packages 
+library(dplyr)
+library(magrittr)
+library(lubridate)
+library(ggplot2)
+library(openxlsx)
+library(lmtest)
+library(sandwich)
+library(stargazer)
+
+## Import datasets
+mobility <- read.csv('../data/raw/2020_US_Region_Mobility_Report.csv',
+                     stringsAsFactors = F)
+stateInfo <- read.xlsx('../data/raw/COVID-19 US state policy database 3_17_2021.xlsx',
+                      sheet = 1, detectDates = T) %>%
+   ## Filter out the filler rows
+  filter(!(STATE %in% c('State', 'category', 'type', 'unit'))) 
+
+ACS <- read.csv('../data/raw/ACSDP1Y2019.DP05-2021-04-04T224220.csv', stringsAsFactors = F)
+
+govParty <- read.csv('../data/raw/Govenor Party.csv', stringsAsFactors = F)
+
+## Bring in COVID data - this is CDC data, not NYT because it's already incremental and easier to work with
+COVIDData <- read.csv('../data/raw/United_States_COVID-19_Cases_and_Deaths_by_State_over_Time.csv', stringsAsFactors = F) 
+
+## Subset mobility data down to only state rows and convert the date to a date
+stateLevel <- mobility %>% filter(sub_region_1 != '', 
+                                  sub_region_2 == '') %>%
+                           mutate(Date = ymd(date))
+
+## Subset to just the aggregate US level values for graphs
+usLevel <- mobility %>% filter(sub_region_1 == '', 
+                               sub_region_2 == '') %>% 
+                          mutate(Date = ymd(date))
+
+## ACS data prep
+
+### Get usable variable names
+ACS %<>% select(c(Label, contains('Estimate')))
+names(ACS) <- gsub('..Estimate', '', names(ACS))
+names(ACS) <- gsub('\\.', ' ', names(ACS))
+
+### Transpose the dataframe
+ACS <- as.data.frame(t(as.matrix(ACS)))
+ACS %<>% tibble::rownames_to_column('State')
+ACS[1,1] <- 'State'
+
+names(ACS) <- make.names(as.matrix(ACS[1, ]))
+
+#### Remove the header row
+ACS <- ACS[-1, ] 
+
+#### Select down to the columns we want - can't do this by names because of duplicates
+ACS <- ACS[, c(1, 3, 6, 10, 11, 20, 30)]
+
+#### Clean up the two vars we want - need to play around because matrix converts to factors
+ACS %<>% mutate(Population = as.numeric(gsub(',', '', as.character(X....Total.population))), 
+                MedianAge = as.numeric(as.character(X........Median.age..years.)), 
+                SexRatio = as.numeric(as.character(X........Sex.ratio..males.per.100.females.)),
+                SexRatioGt65 = as.numeric(as.character(X............Sex.ratio..males.per.100.females.)),
+                YoungPopPcnt = (as.numeric(gsub(',', '', as.character(X........15.to.19.years))) + as.numeric(gsub(',', '', as.character(X........20.to.24.years)))) / Population
+                  ) %>%
+  select(-X....Total.population, -X........Median.age..years., -X........Sex.ratio..males.per.100.females.,
+         -X............Sex.ratio..males.per.100.females., -X........15.to.19.years, -X........20.to.24.years)
+
+startDate <- '2020-03-15'
+endDate <- '2020-06-15'
+
+##  Create the modeling dataset
+modDat <- stateLevel %>%
+  filter(Date >= startDate,
+         Date <= endDate) %>%
+  group_by(sub_region_1) %>%
+  summarise(y_var = median(retail_and_recreation_percent_change_from_baseline)) %>%
+  left_join(stateInfo, by = c('sub_region_1' = 'STATE')) %>%
+  mutate(stay = case_when(STAYHOME > 0 ~ '1',
+                          TRUE ~ '0'),
+         ## This needs to be reviewed in case I messed up the logic
+         length = case_when(STAYHOME > 0 & ymd(STAYHOME) > startDate & ymd(END_STHM) < endDate ~ ymd(END_STHM) - ymd(STAYHOME),
+                            STAYHOME > 0 & ymd(STAYHOME) > startDate & ymd(END_STHM) > endDate ~ ymd(endDate) - ymd(STAYHOME),
+                            STAYHOME > 0 & ymd(STAYHOME) < startDate & ymd(END_STHM) < endDate ~ ymd(END_STHM) - ymd(startDate),
+                            STAYHOME > 0 & ymd(STAYHOME) < startDate & ymd(END_STHM) > endDate ~ ymd(endDate) - ymd(startDate),
+                            TRUE ~ 0)) %>% 
+  left_join(ACS, by = c('sub_region_1' = 'State')) %>%
+  left_join(govParty, by = c('sub_region_1' = 'State')) %>%
+  left_join(
+    COVIDData %>%
+      filter(!is.na(submission_date)) %>%
+      filter(mdy(submission_date) >= startDate,
+             mdy(submission_date) <= endDate) %>%
+      group_by(state) %>%
+      summarise(new_case = sum(new_case)),
+    by = c('POSTCODE' = 'state')
+  ) %>%
+  mutate(new_case_per_thousand = new_case / Population * 1000)
+
+write.csv(modDat, '../data/processed/processed.csv', row.names = F)
+```
