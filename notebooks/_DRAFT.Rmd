@@ -128,7 +128,7 @@ modDat <- stateLevel %>%
 
 ## Context
 
-In Spring 2020 as the onset of the COVID-19 splashed across headlines, US state governments attempted to slow community spread of COVID-19 through Stay at Home (SAH) orders. By the end of March 2020, 39 states had an active SAH order directing limitations to citizen movement integral to their everyday lives, impacting an estimated \href{https://www.nbcnews.com/news/world/75-million-americans-under-virtual-lockdown-after-italy-suffers-huge-n1165591}{75 million Americans}, roughly a fifth of the US population. This represented one of the strongest public policy interventions leveraged by state governments impacting citizen freedom of choice in modern history.
+In Spring 2020 as the onset of the COVID-19 splashed across headlines, US state governments attempted to slow community spread of COVID-19 through Stay at Home (SAH) orders. By the end of March 2020, 39 states had an active SAH order directing limitations to citizen movement integral to their everyday lives, impacting an estimated \href{https://www.nbcnews.com/news/world/75-million-americans-under-virtual-lockdown-after-italy-suffers-huge-n1165591}{75 million Americans}, roughly a fifth of the US population. This represented one of the strongest public policy interventions leveraged by state governments impacting citizen freedom of choice in modern American history.
 
 Early on, state leadership such as Governor Newsom of California and Governor Cuomo of New York were praised for early action. However the ramifications of the SAH orders issued by states revealed to be both immense in both scope and devastating in many dimensions. The SAH orders spurred a complimentary set of closure orders resulting in job loss, delay in healthcare treatment and a burgeoning crisis in youth development. This was all done in the name of public health. 
 
@@ -180,9 +180,6 @@ fig2
 The dependent variable we capture is the change in constituent mobility rate, which serves as a proxy for the degree of adherence citizens have toward the SAH order imposed in their states. We leverage \href{https://www.google.com/covid19/mobility/}{Google mobility reports}, an anonymized dataset that aggregates the location data of users of Google products, to evaluate the degree to which citizens adhered to SAH orders. Mobility metrics are calculated by Google against a baseline set as the median mobility value from the 5‑week period Jan 3 – Feb 6, 2020, and are reported as a percent change with respect to this baseline. Full documentation of Google's datasets can be found \href{https://support.google.com/covid19-mobility?hl=en#topic=9822927}{here}.  
 
 While there are many mobility measures that Google reports, including "transit stations", "parks", and "workplace", our research will focus on the change in mobility for the "retail and recreation" category. Unlike the other categories, we believe that "retail and recreation" best captures the type of non-essential activity SAH policies intended to reduce in order to fulfill its objective of slowing the spread of COVID-19..
-
-
-## ASSUMPTIONS?
 
 ## Limitations of Data
 
@@ -238,7 +235,7 @@ For the duration of this analysis, we will use use an alpha-level of 0.05 to det
 ## Model 1: 
 
 ### Variables
-In our base limited model, we examine the relationship that a state's SAH order duration has on the dependent variable. To calculate the length of a SAH order, we rely on the \href{https://github.com/USCOVIDpolicy/COVID-19-US-State-Policy-Database}{COVID-19 US State Policy Database}, published by Boston University School of Public Health. This dataset contains start and end dates for each state's SAH order, which we convert to a single integer representing the number of days a SAH order is imposed for a given state. 
+In our base limited model, we examine the relationship that a state's SAH order duration has on the dependent variable. To calculate the length of a SAH order, we rely on the \href{https://github.com/USCOVIDpolicy/COVID-19-US-State-Policy-Database}{COVID-19 US State Policy Database}, published by Boston University School of Public Health. This dataset contains start and end dates for each state's SAH order, which we convert to a single integer representing the number of days a SAH order is imposed for a given state. This calculation is dependent on a state having a SAH order tha limits movement of the general public. States such as Connecticut that had a SAH that did not limit movement will be treat as if it did not have a SAH, with a length of 0. 
 
 ### Modeling Goal
 Our modeling goal is to build an explanatory model, and specifically we are looking at the question: do changes in SAH length cause changes in mobility of large magnitude. Based on this goal, we are less interested in perfectly describing the nuances of the relationship between X and Y, or in predicting Y, in this limited model.
@@ -290,18 +287,18 @@ Our final limited model is:
 $Y$ = median reduction in retail and recreational mobility.
 $X_0$ = Length of stay at home order during the period.
 
-Limited Model: Y = B0 + B1*X_0
+Limited Model: $Y$ = B0 + B1*$X_0$
 
 After fitting the model we get:
 
-Limited Model: Y = -18.5 + -0.25*X_0
+Limited Model: $Y$ = -18.5 + -0.25*$X_0$
 
 ### Evaluation
 
 ```{r}
 coeftest(model1, vcov = vcovHC(model1))
 ```
-The p-values for the intercept and independent variable, SAH length, are 5.436e-14 and 1.651e-07, respectively, indicating statistically significant relationships. We also find an adjusted R-squared value of 0.4295. An ANOVA against the base model, which excludes SAH length as a variable, reports Pr(>F) = 1.08e-07.
+The p-values, using robust standard errors, for the intercept and independent variable, SAH length, are 5.436e-14 and 1.651e-07, respectively, indicating statistically significant relationships. We also find an adjusted R-squared value of 0.4295. An ANOVA against the base model, which excludes SAH length as a variable, reports Pr(>F) = 1.08e-07.
 
 ```{r}
 model_base <- lm(y_var~1,data=df)
@@ -360,7 +357,7 @@ In our second model, we include two additional variables in our analysis: the po
 
 ### Modeling Goal:
 
-The goal of our second model is again explanatory, but this time with a focus on covariates that could have a relationship both with our Y variable and our X_0 variable. If we find that these covariates are significant, it could undermine confidence in the explanatory power of our limited model.
+The goal of our second model is again explanatory, but this time with a focus on covariates that could have a relationship both with our $Y$ variable and our $X_0$ variable. If we find that these covariates are significant, it could undermine confidence in the explanatory power of our limited model.
 
 ### EDA:
 
@@ -385,7 +382,7 @@ grid.arrange(p1,p2,nrow=1,ncol=2)
 
 ```
 
-This potentially undermines the explanatory power of our Limited Model, as both of these variables could also explain positive changes in our X_0 variable SAH Order Length, biasing our Limited Model’s beta coefficient away from zero. To further assess this possibility we explored the relationship between our independent variables.  
+This potentially undermines the explanatory power of our Limited Model, as both of these variables could also explain positive changes in our $X_0$ variable SAH Order Length, biasing our Limited Model’s beta coefficient away from zero. To further assess this possibility we explored the relationship between our independent variables.  
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.width=6, fig.cap="\\label{fig:figs}.Model 2 EDA/2"}
 p3 <- df %>%
@@ -438,9 +435,9 @@ anova(model2,model1,test='F')
 
 ```
 
-When we add in the covariates X_1 and X_2 we find that both the magnitude and p value for X_0 decrease substantially.  In addition X_1 and X_2 both have a significant relationship with our Y variable.
+When we add in the covariates $X_1$ and $X_2$ we find that both the magnitude and p value for $X_0$ decrease substantially.  In addition $X_1$ and $X_2$ both have a significant relationship with our $Y$ variable.
 
-This calls into the question the explanatory power of our X_0 variable, as our causal chain could look like:
+This calls into the question the explanatory power of our $X_0$ variable, as our causal chain could look like:
 
 ![Model 2 Omitted variable bias](../img/model2_omitted.png){width=400px}
 
@@ -538,10 +535,10 @@ Based on our EDA no transformation appears to be called for.
 ### Model Construction
 
 
-X_3 = Median Age of State Residents
-X_4 = Percent of Residents at Risk for Serious Covid Infection
+$X_3$ = Median Age of State Residents
+$X_4$ = Percent of Residents at Risk for Serious Covid Infection
 
-Y = B0 + B1*X_0 + B2*X_1 + B3*X_2 + B4*X_3 + B5*X_4
+$Y = B0 + B1*X_0 + B2*X_1 + B3*X_2 + B4*X_3 + B5*X_4$
 
 
 
@@ -572,7 +569,7 @@ $Y = -30.40 + -0.16*X_1 + -0.55*X_2 + 5.13*X_3 + -0.77*X_4 + 1.02*X_5$
 
 ### Evaluation
 
-After adding the covariate X_3 and X_4 we find that the P value for X_3 is high, and that the direction of X_4 is actually the opposite of what we would expect, which might be caused by this essentially being an outcome variable on the right side caused by an omitted variable like lack of medical knowledge. This outcome leads us to believe that these covariates are not good explanatory variables for changes in our Y variable.
+After adding the covariate $X_3$ and $X_4$ we find that the P value for $X_3$ is high, and that the direction of $X_4$ is actually the opposite of what we would expect, which might be caused by this essentially being an outcome variable on the right side caused by an omitted variable like lack of medical knowledge. This outcome leads us to believe that these covariates are not good explanatory variables for changes in our Y variable.
 
 
 
@@ -589,9 +586,9 @@ anova(model3,model2,test='F')
 We summarize the 3 regression models selected variables in the regression table below.
 
 ```{r warning=FALSE}
-se.model1 = coeftest(model1)[ , "Std. Error"]
-se.model2 = coeftest(model2)[ , "Std. Error"]
-se.model3 = coeftest(model3)[ , "Std. Error"]
+se.model1 = coeftest(model1, vcov = vcovHC(model1))[ , "Std. Error"]
+se.model2 = coeftest(model2, vcov = vcovHC(model2))[ , "Std. Error"]
+se.model3 = coeftest(model3, vcov = vcovHC(model3))[ , "Std. Error"]
 
 stargazer(model1, model2, model3, type = "text",
           se = list(se.model3),
@@ -623,10 +620,10 @@ shapiro.test(model2$residuals)
 
 # Discussion of Omitted Variables
 
-As part of the evaluation of our Limited Model, we identified that it was susceptible to omitted variable bias, and we identified two variables that could cause such biase, X_1  COVID Cases per 100 Residents and X_2 Political Party of State Governor, that we then included in our Model 2.  X_2 Political Party of State Governor is a proxy for the political beliefs of State residents, which is an omitted variable discussed below. In addition, below we examine several omitted variables that could impact our Model 2 and Model 3. 
+As part of the evaluation of our Limited Model, we identified that it was susceptible to omitted variable bias, and we identified two variables that could cause such biase, $X_1$  COVID Cases per 100 Residents and $X_2$ Political Party of State Governor, that we then included in our Model 2.  $X_2$ Political Party of State Governor is a proxy for the political beliefs of State residents, which is an omitted variable discussed below. In addition, below we examine several omitted variables that could impact our Model 2 and Model 3. 
 
 ## OV1: Political Beliefs of State Residents
-Our second model includes X_2 Political Party of State Governor, which we find was an omitted variable that had biased our limited model away from zero. X_2 Political Party of State Governor, however, is really just a rough proxy for the political beliefs of State residents. Our concern is that if political beliefs of State residents was included as a variable it might be shown to have an even stronger relationship with SAH order length and our Y variable, biasing our Limited Model and Model 2 away from zero.  
+Our second model includes $X_2$ Political Party of State Governor, which we find was an omitted variable that had biased our limited model away from zero. $X_2$ Political Party of State Governor, however, is really just a rough proxy for the political beliefs of State residents. Our concern is that if political beliefs of State residents was included as a variable it might be shown to have an even stronger relationship with SAH order length and our Y variable, biasing our Limited Model and Model 2 away from zero.  
 
 ![Visual Representation of Omitted Variable 1, Political Beliefs of State Residents](../img/OV1.png){width=400px}
 
@@ -634,19 +631,23 @@ For this reason we remain hesitant about the explanatory value of our SAH Order 
 
 ## OV2: Percentage of Urban Residents
 
-The percent of urban residents in a state is an omitted variable that could bias multiple coefficients in our Model 2 away from zero.  Specifically, we would expect states with a higher percent of urban residents to implement longer SAH Orders, experience a higher number of COVID cases, and have residents in those urban areas that are naturally more inclined to reduce their R&R mobility due to higher perceived risk. This again highlights the difficulty we face in ascribing clear explanatory power to our X_0 variable SAH Order Length.  
+The percent of urban residents in a state is an omitted variable that could bias multiple coefficients in our Model 2 away from zero.  Specifically, we would expect states with a higher percent of urban residents to implement longer SAH Orders, experience a higher number of COVID cases, and have residents in those urban areas that are naturally more inclined to reduce their R&R mobility due to higher perceived risk. This again highlights the difficulty we face in ascribing clear explanatory power to our $X_0$ variable SAH Order Length.  
 
 ![Visual Representation of Omitted Variable 2, Percentage of Urban Residents](../img/OV2.png){width=400px}
 
-## OC3: Medical Knowledge
+## OV3: New Unemployment Claims
 
-Medical knowledge is an omitted variable that could have a relationship with both our X_1 variable COVID Cases per 1000 Residents and our Y variable. We would expect that in States with lower average medical knowledge there would be a higher number of cases per 1000 residents (X_1) and a smaller median decrease in R&R mobility.  This would bias our X_1 beta coefficient towards zero. 
+New unemployment claims is an omitted variable that could affect our $X_0$ variable SAH order length and our $Y$ value, and it would bias our $X_0$ beta coefficient away from zero. Would expect States with a large number of new unemployment claims to try to end their SAH order quickly because of negative economic impact. In addition, we would expect States with a large number of new unemployment claims to see a smaller median decrease in R&R mobility, because people without a job, collecting unemployment, will have extra time on their hands, and might find it difficult to reduce their R&R mobility.
 
-In addition, medical knowledge as an omitted variable might help to explain why our X_4 variable in Model 3 has a beta coefficient with a sign that is the opposite of what we expected.  X_4 Percent at Risk of Serious COVID Illness could be an outcome variable of the omitted variable medical knowledge. In Model 3 we would have put this outcome variable on the right side. Lack of medical knowledge would cause both a greater number of people to be at risk of serious COVID Illness due to pre-existing conditions like tobacco use, obesity, diabetes, etc, and also cause the same people to not limit their R&R mobility during COVID.
+## OV4: Medical Knowledge
 
-## OV4: Risk Tolerance
+Medical knowledge is an omitted variable that could have a relationship with both our $X_1$ variable COVID Cases per 1000 Residents and our Y variable. We would expect that in States with lower average medical knowledge there would be a higher number of cases per 1000 residents ($X_1$) and a smaller median decrease in R&R mobility.  This would bias our $X_1$ beta coefficient towards zero. 
 
-In our Model 2 we found a relationship between X_1 COVID Cases per 1000 Residents and our Y variable, specifically we found that states with a higher number of COVID cases per 1000 residents saw a greater median decrease in R&R mobility.  Risk  Tolerance is an omitted variable that could have a relationship with both X_1 and Y, however it would bias our beta coefficient toward zero. We would imagine that states with a greater average risk tolerance would have both more COVID cases per 1000 residents and a smaller median decrease in R&R mobility.
+In addition, medical knowledge as an omitted variable might help to explain why our $X_4$ variable in Model 3 has a beta coefficient with a sign that is the opposite of what we expected.  $X_4$ Percent at Risk of Serious COVID Illness could be an outcome variable of the omitted variable medical knowledge. In Model 3 we would have put this outcome variable on the right side. Lack of medical knowledge would cause both a greater number of people to be at risk of serious COVID Illness due to pre-existing conditions like tobacco use, obesity, diabetes, etc, and also cause the same people to not limit their R&R mobility during COVID.
+
+## OV5: Risk Tolerance
+
+In our Model 2 we found a relationship between $X_1$ COVID Cases per 1000 Residents and our Y variable, specifically we found that states with a higher number of COVID cases per 1000 residents saw a greater median decrease in R&R mobility.  Risk  Tolerance is an omitted variable that could have a relationship with both $X_1$ and $Y$, however it would bias our beta coefficient toward zero. We would imagine that states with a greater average risk tolerance would have both more COVID cases per 1000 residents and a smaller median decrease in R&R mobility.
 
 \newpage
 # Conclusion
