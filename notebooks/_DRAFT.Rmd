@@ -603,19 +603,22 @@ stargazer(model1, model2, model3, type = "text",
 
 \newpage
 # Limitations of Model
-[As a team, evaluate all of the CLM assumptions that must hold for your model. However, do not report an exhaustive examination all 5 CLM assumption. Instead, bring forward only those assumptions that you think pose significant problems for your analysis. For each problem that you identify, describe the statistical consequences. If you are able to identify any strategies to mitigate the consequences, explain these strategies. Note that you may need to change your model specifications in response to violations of the CLM.]
+We evaluated our model against the five CLM assumptions and find that Model 2 most reasonably satisfies the CLM requirements. To establish that our estimators in Model 2 are unbiased, we must establish that the data are IID, there is no perfect collinearity and a linear conditional expectation is met. While our model 2 results and figure below show evidence that there is no perfect collinearity (i.e., R did not drop a coefficient in the model results and appying the 'ocular test' to the 'Residuals v Fitted' below), there are some IID considerations of our sample to note. Due to the time-based nature of COVID spread as well as instituting SAH orders, there is likely an independence issue of our observations. We attempt to mitigate some of this impact by focusing our timeframe of analysis to the first wave of COVID, as detailed in our Research Operationalization section. These considerations of IID for Model 2 is noted as a limitation of our model. 
 
-a. IID
-b. Linear conditional expectation 
-c. No perfect collinearity
-d. Homoskedastic errors
-e. Normally distributed test
+Next, we evaluate Model 2 for homoskedastic errors. While there is a mostly flat trendline in the below 'Scale-Location' subplot, we detect a slight downward slope to the line plotted. Our Breusch-Pagan test results with a p-value of 0.28 fails to reject the null hypothesis and suggests there is a lack of evidence for heteroskedastic errors. To remain conservative in our practice as well as due to the relatively small sample size of our analysis, we opt to default the model to robust standard errors.
 
-Perfect colinearity??
+The final CLM requirement of normally distributed errors is met through the ocular test of the 'Normal QQ' plot below as well as a statistical evaluation via the Shapiro-Wilk normality test. The	Shapiro-Wilk normality test yields a p-value of 0.14 that leads us to fail to reject the null hypothesis that we have normally distributed errors. 
 
 
 ```{r}
+par(mfrow=c(2,2))
 plot(model2)
+
+# Assessing homoskedastic errors
+bptest(model2)
+
+# Assessing for normally distributed error
+shapiro.test(model2$residuals)
 ```
 
 # Discussion of Omitted Variables
