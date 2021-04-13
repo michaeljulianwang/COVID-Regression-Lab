@@ -249,7 +249,6 @@ Our initial EDA shows what looks like a strong linear relationship between our X
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.width=6, fig.cap="\\label{fig:figs}Model 1 EDA: Linear relationship exhibited between X, Y"}
 
-
 df %>%
   select(length,y_var) %>%
   ggplot(aes(x=length,y=y_var))+
@@ -272,9 +271,23 @@ df %>%
 
 ```
 
+Based on Figure 4, we see the distribution of our dependent variable does appear to have slightly heavier left tail than the normal distribution as a result of a small handful of states having far lower reductions in R&R mobility than others.  
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.width=6, fig.cap="\\label{fig:figs}Model 1 EDA: Dependent Variable"}
+
+df %>%
+  select(y_var) %>%
+  ggplot(aes(x=y_var))+
+  geom_histogram()+
+  labs(x='Median Reduction in R&R Mobility',y='Number of States')
+
+```
+
 ### Transformations
 
-Based on the EDA we could consider dropping the states that did not implement the SAH, and using a transformation like Y =  B0 + B1*(1/X). However, this adds complexity to the interpretation of our model. Given that our goal is not to perfectly describe the relationship between X and Y, or to predict Y, but rather to build an explanatory model showing that changes in X cause changes of magnitude in Y, we have decided not apply a transformation.
+Based on the EDA we could consider dropping the states that did not implement the SAH, and using a transformation like $Y =  B0 + B1*(1/X)$. However, this adds complexity to the interpretation of our model. Given that our goal is not to perfectly describe the relationship between X and Y, or to predict Y, but rather to build an explanatory model showing that changes in X cause changes of magnitude in Y, we have decided not apply a transformation.
+
+Further, though we do notice a deviation from normality for our dependent Y variable, the deviation from normality is not strong enough to suggest a transformation that may hurt the interpretability of this study. 
 
 ### Model Construction
 
@@ -311,7 +324,7 @@ However, as our modeling and analysis goal is explanatory, we need to evaluate t
 
 1. Reverse causality: Reverse causality is unlikely in our model such that reductions in mobility could cause longer SAH orders. This scenario was assessed to be illogical in practice. SAH orders were issued by local governments with the express intent of reducing mobility as a community mitigation measure to slow the spread of COVID. If anything, in States where people naturally reduced mobility, we might see that cause shorter SAH orders as the mandate would seem unnecessary. Much more likely is omitted variable bias, where something like political beliefs might cause both reductions in mobility and longer SAH orders.  
 
-2. Omitted variable bias: There is substantial risk of omitted variable bias undermining our model’s explanatory power (Figure 4).  There are several variables not included that could cause both longer SAH orders and greater decreases in mobility, creating a strong bias away from zero.  We explore some of these variables further in our second model.  
+2. Omitted variable bias: There is substantial risk of omitted variable bias undermining our model’s explanatory power (Figure 5).  There are several variables not included that could cause both longer SAH orders and greater decreases in mobility, creating a strong bias away from zero.  We explore some of these variables further in our second model.  
 
 ![Model 1 Omitted variable bias](../img/model1_omitted.png){width=400px}
 
