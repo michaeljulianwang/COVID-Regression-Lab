@@ -177,14 +177,18 @@ ggplot(usLevel, aes(x = Date, y = retail_and_recreation_percent_change_from_base
 
 ```{r, echo=FALSE, message=FALSE}
 ggplot(modDat, aes(x = y_var)) +
-  geom_histogram() + ggtitle("y_var Exploration") 
+  geom_histogram() + ggtitle("Mobility Reduction") +
+  xlab('Median Mobility Reduction') + 
+  ylab('State Count')
 ```
 
 ### Model  1
 
 ```{r, echo=FALSE, message=FALSE}
 ggplot(modDat, aes(x = as.numeric(length))) +
-  geom_histogram() + ggtitle("stay Exploration") 
+  geom_histogram() + ggtitle("SAH Length") +
+  xlab('SAH Length (Days)') + 
+  ylab('State Count')
 ```
 
 ```{r, echo=FALSE, message=FALSE}
@@ -199,12 +203,16 @@ coeftest(mod1, vcov = vcovHC(mod1))
 
 ```{r, echo=FALSE, message=FALSE}
 ggplot(modDat, aes(x = new_case_per_thousand )) +
-  geom_histogram() + ggtitle("Cases per Thousand") 
+  geom_histogram() + ggtitle("Cases per Thousand") +
+  xlab('COVID Cases per Thousand') + 
+  ylab('State Count')
 ```
 
 ```{r, echo=FALSE, message=FALSE}
-ggplot(modDat, aes(x = length, fill = Party )) +
-  geom_histogram() + ggtitle("Length of Stay at Home by Party") 
+ggplot(modDat, aes(x = y_var, fill = Party )) +
+  geom_histogram() + ggtitle("Mobility Reduction by Party")  +
+  xlab('Mobility Reduction') + 
+  ylab('State Count')
 ```
 
 ```{r, echo=FALSE, message=FALSE}

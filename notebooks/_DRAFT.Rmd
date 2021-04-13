@@ -37,7 +37,7 @@ library(stargazer)
 ## Import datasets
 mobility <- read.csv('../data/raw/2020_US_Region_Mobility_Report.csv',
                      stringsAsFactors = F)
-stateInfo <- read.xlsx('COVID-19 US state policy database 3_17_2021.xlsx',
+stateInfo <- read.xlsx('../data/raw/COVID-19 US state policy database 3_17_2021.xlsx',
                       sheet = 1, detectDates = T) %>%
    ## Filter out the filler rows
   filter(!(STATE %in% c('State', 'category', 'type', 'unit'))) 
@@ -47,7 +47,7 @@ ACS <- read.csv('../data/raw/ACSDP1Y2019.DP05-2021-04-04T224220.csv', stringsAsF
 govParty <- read.csv('../data/raw/Gov_Party.csv', stringsAsFactors = F)
 
 ## Bring in COVID data - this is CDC data, not NYT because it's already incremental and easier to work with
-COVIDData <- read.csv('United_States_COVID-19_Cases_and_Deaths_by_State_over_Time.csv', stringsAsFactors = F) 
+COVIDData <- read.csv('../data/raw/United_States_COVID-19_Cases_and_Deaths_by_State_over_Time.csv', stringsAsFactors = F) 
 
 ## Subset mobility data down to only state rows and convert the date to a date
 stateLevel <- mobility %>% filter(sub_region_1 != '', 
@@ -101,7 +101,6 @@ modDat <- stateLevel %>%
   left_join(stateInfo, by = c('sub_region_1' = 'STATE')) %>%
   mutate(stay = case_when(STAYHOME > 0 ~ '1',
                           TRUE ~ '0'),
-         ## This needs to be reviewed in case I messed up the logic
          length = case_when(STAYHOME > 0 & ymd(STAYHOME) > startDate & ymd(END_STHM) < endDate ~ ymd(END_STHM) - ymd(STAYHOME),
                             STAYHOME > 0 & ymd(STAYHOME) > startDate & ymd(END_STHM) > endDate ~ ymd(endDate) - ymd(STAYHOME),
                             STAYHOME > 0 & ymd(STAYHOME) < startDate & ymd(END_STHM) < endDate ~ ymd(END_STHM) - ymd(startDate),
@@ -209,7 +208,7 @@ Formally, our dependent variable is the median reduction in "retail and recreati
 
 We choose to examine the median percent change in mobility, instead of another aggregation such as mean, for two benefits. Firstly, using the median aligns with Google's methodology of setting the baseline with which all daily comparisons are made. Secondly, the median will be less sensitive to anomalous fluctuations in mobility throughout the research window as compared to the mean.  
 
-
+For the duration of this analysis, we will use use an alpha-level of 0.05 to determine statisitical signficane in accordance with common industry practices. 
 
 
 
@@ -302,9 +301,9 @@ Limited Model: Y = -18.5 + -0.25*X_0
 ### Evaluation
 
 ```{r}
-summary(model1)
+coeftest(model1, vcov = vcovHC(model1))
 ```
-The p-values for the intercept and independent variable, SAH length, are 4.76e-13 and 1.08e-07, respectively, indicating statistically significant relationships. We also find an adjusted R-squared value of 0.4295. An ANOVA against the base model, which excludes SAH length as a variable, reports Pr(>F) = 1.08e-07.
+The p-values for the intercept and independent variable, SAH length, are 5.436e-14 and 1.651e-07, respectively, indicating statistically significant relationships. We also find an adjusted R-squared value of 0.4295. An ANOVA against the base model, which excludes SAH length as a variable, reports Pr(>F) = 1.08e-07.
 
 ```{r}
 model_base <- lm(y_var~1,data=df)
@@ -435,7 +434,7 @@ $Y = -20.73 + -0.17*X_1 + -0.74*X_2 + 6.06*X_3$
 
 ```{r}
 
-summary(model2)
+coeftest(model2, vcov = vcovHC(model2))
 
 anova(model2,model1,test='F')
 
@@ -463,8 +462,8 @@ Omitted variable bias  =  B1 - B1 = -0.07
 model2_1 <- lm(y_var~1+length+new_case_per_thousand,data=df)
 model2_2 <- lm(y_var~1+length+Party,data=df)
 
-summary(model2_1)
-summary(model2_2)
+coeftest(model2_1, vcov = vcovHC(model2_1))
+coeftest(model2_2, vcov = vcovHC(model2_2))
 ```
 
 We observe that the omitted variable bias is away from zero in both cases. 
@@ -583,7 +582,7 @@ After adding the covariate X_3 and X_4 we find that the P value for X_3 is high,
 
 
 ```{r}
-summary(model3)
+coeftest(model3, vcov = vcovHC(model3))
 anova(model3,model2,test='F')
 
 ```
@@ -646,4 +645,4 @@ In our Model 2 we found a relationship between X_1 COVID Cases per 1000 Resident
 
 \newpage
 # Conclusion
-
+There is no denying the impact that SAH orders have had on local communities as measures were taken to dampen the spread of COVID while maintaining a sense of normalcy for communities during trying times. As more data becomes available, we can begin to answer the question of whether these actions were worthwhile. This cursory, exploratory analysis does show a statistically significant relationship between increasing lengths of implemented SAH orders and reductions in resident mobility for non-essential activities during the first wave of COVID in the United States, even when accounting for COVID cases during the period and the political party of the governor. We look to future research to continue this exploration to both test the causal relationship between SAH order length and mobility reduction as well as examine the impact that SAH orders may have had on reducing COVID infections and corresponding deaths.
