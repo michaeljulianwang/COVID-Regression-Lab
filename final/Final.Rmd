@@ -216,7 +216,7 @@ Our modeling goal is to build an explanatory model to determine if a relationshi
 
 ### EDA
 
-Our initial EDA shows a strong, linear relationship between our SAH order length and the dependent variable (Figure 2).  
+Our initial EDA shows a strong, linear relationship between our SAH order length and the dependent variable (Figure 2). SAH order length covers the span of real-valued positive intergers, truncated at length of our observation window. Therefore, we will treat this feature as a numeric. 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.width=6, fig.cap="\\label{fig:figs}Model 1 EDA, Linear Relationship Exhibited When States Without SAH Order Included"}
 
@@ -242,7 +242,7 @@ df %>%
 
 ```
 
-In Figure 4, we observe the distribution of our dependent variable does appear to exhibit a slightly heavier left tail than a normal distribution as a result of a few states having far lower reductions in R&R mobility than other states  
+In Figure 4, we observe the distribution of our dependent variable does appear to exhibit a slightly heavier left tail than a normal distribution as a result of a few states having far lower reductions in R&R mobility than other states. This dependent variable is real-valued and will therefore be treated as a numeric target for our modeling.   
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.width=6, fig.cap="\\label{fig:figs}Model 1 EDA, Distribution of the Dependent Variable"}
 
@@ -338,7 +338,8 @@ The goal of our second model is again explanatory, but with a focus on covariate
 
 ### EDA
 
-Based on our EDA (Figure 6), it appears there exists a relationship between COVID cases per 1000 residents and the median reduction in mobility. The more COVID cases a state records per 1000 residents, the greater the median reduction in mobility. Additionally, there appears to exist a relationship between political beliefs and the median reduction in mobility. In states with Democratic Governors, the median reduction in mobility was greater in magnitude.  
+Based on our EDA (Figure 6), it appears there exists a relationship between COVID cases per 1000 residents and the median reduction in mobility. The more COVID cases a state records per 1000 residents, the greater the median reduction in mobility. This feature is a positive, real-valued number and will be treated as a numeric covariate. 
+Additionally, there appears to exist a relationship between political beliefs and the median reduction in mobility. In states with Democratic Governors, the median reduction in mobility was greater in magnitude. This variable is a factor where Democratic governors will be grouped with the base and states with Republican governors will have an associated beta value.  
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.width=6, fig.cap="\\label{fig:figs}Model 2 EDA, Effects of $X_1$ and $X_2$ on $Y$"}
@@ -442,7 +443,7 @@ Although Model 2 still shows that SAH order length has the most significant rela
 
 ### Variables
 
-In our third model, we include two additional variables in addition to previous variables: the median age of residents and the percentage of residents at risk for serious COVID infection. Regarding the former variable, we hypothesize younger residents, who will have a greater tolerance for risk relative to older residents, may be less inclined to adhere to SAH orders. Regarding the latter variable, we hypothesize that residents at greater relative risk for serious COVID infection may be less inclined to adhere to SAH orders.
+In our third model, we include two additional variables in addition to previous variables: the median age of residents and the percentage of residents at risk for serious COVID infection, both of which are postive real-valued variables and will be treated as numeric. Regarding the former variable, we hypothesize younger residents, who will have a greater tolerance for risk relative to older residents, may be less inclined to adhere to SAH orders. Regarding the latter variable, we hypothesize that residents at greater relative risk for serious COVID infection may be less inclined to adhere to SAH orders.
 
 
 ### Modeling Goal
